@@ -1,30 +1,38 @@
-# cache-purge-helper
-Additional instances where nginx-helper and lscache plugin should be purged.
+# Weave Cache Purge Helper
 
-# Install
-## WordPress Plugin Directory
-I've published this to the WordPress Plugin Directory https://wordpress.org/plugins/cache-purge-helper/
-## Manual Install
-=======
->>>>>>> dev
+This is a fork of the Cache Purge Helper plugin, tailored for use by Weave Digital. It includes additional hooks for Beaver Builder and ACF to trigger NGINX Helper and LiteSpeed Cache plugin purges.
+
+## Changes from Original Plugin
+
+### Added
+- Integration ACF Options pages update to trigger cache purges.
+
+### Changed
+- Logging prefix updated from `cphp` to `wcph`.
+- Versioning starts at `1.0.0` to signify the fork.
+
+### Removed
+- Support for Elementor, Autoptimize, and Oxygen builders to streamline functionality for Weave Digital's specific needs and Beaver Builder.
+
+## Original Plugin
+This fork is based on the Cache Purge Helper plugin by Paul Stoute, Jordan Trask, and Jeff Cleverley.
+
+### Contributions
+* Paul Stoute - [Stoute Web Solutions](https://stoutewebsolutions.com/)
+* Jordan Trask - [GitHub](https://github.com/jordantrizz)
+* Jeff Cleverley - [GridPane](https://gridpane.com)
+* Gareth Bissland - [Weave Digital Studio](https://weave.co.nz) (Fork Author)
+
+## Installation
+
+### Manual Install
 1. Extract the zip file.
-2. Upload them to `/wp-content/plugins/` directory on your WordPress installation.
-3. Then activate the Plugin from Plugins page.
+2. Upload the extracted folder to the `/wp-content/plugins/` directory on your WordPress installation.
+3. Activate the plugin from the Plugins page.
 
-# Documentation
-* https://managingwp.io/
+## Fork Information
+* Original Plugin URI: [Cache Purge Helper on GitHub](https://github.com/managingwp/cache-purge-helper)
+* Author of the Fork: Gareth Bissland - [GitHub](https://github.com/gbissland)
 
-# Contributions
-* Paul Stoute - https://stoutewebsolutions.com/
-* Jordy Boutier - https://webprepare.nl/
-* Jeff Cleverly - https://gridpane.com
-
-# Support/Sponsor
-* Facebook Page - https://www.facebook.com/groups/managingwordpress
-* Sponsor - https://managingwp.io/sponsor/
-* WP Info - https://managingwp.io/
-* WP Guide - https://wpguide.io
-
-# Improvements
-1. More Divi.
-2. Look at incorporating https://gist.github.com/mrcave/7cdf6707273252de04094d4ed8d0d43c
+### Note
+For detailed changes, see the `CHANGELOG.md` file.
