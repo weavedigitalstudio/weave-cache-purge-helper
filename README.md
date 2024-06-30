@@ -30,6 +30,22 @@ This fork is based on the Cache Purge Helper plugin by Paul Stoute, Jordan Trask
 2. Upload the extracted folder to the `/wp-content/plugins/` directory on your WordPress installation.
 3. Activate the plugin from the Plugins page.
 
+## Logging
+
+Enable PHP error_log for WP:
+
+```
+define( 'WP_DEBUG', true );
+define( 'WP_DEBUG_LOG', true );
+define( 'WP_DEBUG_DISPLAY', false ); // Optional
+define( 'WC_PHP_DEBUG', true ); // Custom logging
+```
+
+### For Gridpane Customers
+
+Enable Secure WP Debug via toggle switch then add   `define( 'WC_PHP_DEBUG', true );`   to your site's user-configs.php
+
+
 ## Fork Information
 * Original Plugin URI: [Cache Purge Helper on GitHub](https://github.com/managingwp/cache-purge-helper)
 * Author of the Fork: Gareth Bissland - [GitHub](https://github.com/gbissland)
