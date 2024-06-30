@@ -41,7 +41,7 @@ define( 'WP_DEBUG_DISPLAY', false ); // Optional
 define( 'WC_PHP_DEBUG', true ); // Custom logging
 ```
 
-### For Gridpane Customers
+### For Gridpane Hosting
 
 Enable Secure WP Debug via toggle switch then add   `define( 'WC_PHP_DEBUG', true );`   to your site's user-configs.php
 
