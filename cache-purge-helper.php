@@ -1,7 +1,7 @@
 <?php
 /**
  * Plugin Name:       Weave Cache Purge Helper
- * Plugin URI:        https://yourforkedversion.com
+ * Plugin URI:        https://github.com/weavedigitalstudio/weave-cache-purge-helper/
  * Description:       Fork of Cache Purge Helper for Weave Digital Use. Adds additional WordPress and BB, ACF hooks to trigger NGINX Helper / lscache plugin purges.
  * Version:           1.0.1
  * Author:            Gareth Bissland, Paul Stoute, Jordan Trask, Jeff Cleverley
@@ -11,7 +11,7 @@
  * Requires at least: 3.0
  * Tested up to:      5.4
  *
- * @link              https://github.com/managingwp/cache-purge-helper
+ * @link              https://github.com/weavedigitalstudio/weave-cache-purge-helper/
  * @since             1.0.1
  * @package           weave-cache-purge-helper
  * Original Author:   Paul Stoute, Jordan Trask, Jeff Cleverley
