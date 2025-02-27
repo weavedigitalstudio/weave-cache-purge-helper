@@ -1,6 +1,20 @@
 # Changelog
 
-## [1.0.1] - 2024-06-30
+## [1.2.0] - 2025-02-27
+### Added
+- Integration with WP-Umbrella's cache system to properly clear caches after WP-Umbrella updates.
+- Improved cache clearing sequence to prevent 404 errors (Beaver Builder first, then Nginx/LiteSpeed).
+- Enhanced logging for WP-Umbrella triggered events.
+
+### Changed
+- Refactored cache clearing logic to ensure proper order of operations.
+- Improved compatibility checks for both Nginx Helper and LiteSpeed Cache.
+
+### Fixed
+- Resolved 404 errors on Beaver Builder assets by ensuring caches are cleared in the correct order.
+- Fixed potential issues with cache synchronization between WP-Umbrella, Beaver Builder, and Nginx/LiteSpeed.
+
+## [1.1.1] - 2024-06-30
 ### Changed
 - Refactored plugin initialization to reduce redundant log messages.
 - Added `wcph_init_hooks` function to initialize hooks once during the `init` action.
