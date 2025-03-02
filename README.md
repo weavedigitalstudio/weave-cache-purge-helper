@@ -25,20 +25,31 @@ This fork is based on the Cache Purge Helper plugin by Paul Stoute, Jordan Trask
 * Jeff Cleverley - [GridPane](https://gridpane.com)
 * Gareth Bissland - [Weave Digital Studio](https://weave.co.nz) (Fork Author)
 
-## Installation from GitHub
+## Installation
+
+### Installation from GitHub
 
 When installing this plugin from GitHub:
 
 1. Go to the [Releases](https://github.com/weavedigitalstudio/weave-cache-purge-helper/releases) page
-2. Download the latest release ZIP file
-3. Extract the ZIP file on your computer
-4. Rename the extracted folder to remove the version number  
-   (e.g., from `weave-cache-purge-helper-1.1.0` to `weave-cache-purge-helper`)
-5. Create a new ZIP file from the renamed folder
-6. In your WordPress admin panel, go to Plugins → Add New → Upload Plugin
-7. Upload your new ZIP file and activate the plugin
+2. Download the latest release ZIP file (e.g., `weave-cache-purge-helper-1.2.0.zip`)
+3. In your WordPress admin panel, go to Plugins → Add New → Upload Plugin
+4. Upload the ZIP file and activate the plugin
 
-**Note**: The folder renaming step is necessary for WordPress to properly handle plugin updates and functionality.
+### Manual Installation
+
+If you prefer to manually install:
+
+1. Download the source code from the repository
+2. Extract the files on your computer 
+3. Rename the folder to `weave-cache-purge-helper` if needed
+4. Upload the folder to your `/wp-content/plugins/` directory via FTP
+5. Activate the plugin through the WordPress 'Plugins' menu
+
+### Updates
+
+To update the plugin, download the latest release from GitHub and follow the installation steps again. The new version will replace the existing plugin.
+
 
 ## Logging
 
