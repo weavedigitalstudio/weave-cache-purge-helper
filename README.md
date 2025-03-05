@@ -7,6 +7,7 @@ This is a fork of the Cache Purge Helper plugin, tailored for use by Weave Digit
 ### Added
 - Integration with ACF Options pages updates to trigger cache purges.
 - Integration with WP-Umbrella to ensure proper cache clearing after plugin updates.
+- Integration with WordPress REST API to purge caches when posts are created or updated through external applications or scripts.
 - Proper cache clearing sequence (Beaver Builder first, then Nginx/LiteSpeed) to prevent 404 errors.
 
 ### Changed
@@ -73,6 +74,16 @@ This plugin ensures that caches are cleared in the correct order:
 2. Second: Nginx Helper or LiteSpeed cache is cleared
 
 This sequence prevents 404 errors that can occur when Nginx serves cached HTML that references old, non-existent Beaver Builder asset files.
+
+## REST API Support
+
+This plugin automatically clears caches when content is created or updated through the WordPress REST API. This ensures that:
+
+1. External applications using the REST API to manage content (like Google Sheets integration)
+2. Headless WordPress implementations
+3. Custom scripts or automation tools
+
+All trigger the same complete cache purging sequence as traditional WordPress admin edits. This is crucial for maintaining site performance and preventing stale content when using automation or external content management tools.
 
 ## Fork Information
 * Original Plugin URI: [Cache Purge Helper on GitHub](https://github.com/managingwp/cache-purge-helper)
