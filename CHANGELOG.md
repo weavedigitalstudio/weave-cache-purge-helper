@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.3.0] - 2025-03-05
+### Added
+- WordPress REST API integration for cache purging
+- Automatic cache clearing when posts are created or updated via the REST API
+- Detailed logging for REST API operations with post type and ID information
+- Support for external applications and automation tools that use the WordPress REST API
+
 ## [1.2.0] - 2025-02-27
 ### Added
 - Integration with WP-Umbrella's cache system to properly clear caches after WP-Umbrella updates.
