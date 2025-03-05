@@ -1,3 +1,4 @@
+![Weave Cache Purge Helper](https://weave-hk-github.b-cdn.net/weave/plugin-header.png)
 # Weave Cache Purge Helper
 
 This is a fork of the Cache Purge Helper plugin, tailored for use by Weave Digital on GridPane. It includes additional hooks for Beaver Builder, ACF, and WP-Umbrella to trigger NGINX Helper and LiteSpeed Cache plugin purges.
