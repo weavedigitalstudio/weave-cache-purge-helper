@@ -55,18 +55,30 @@ To update the plugin, download the latest release from GitHub and follow the ins
 
 ## Logging
 
-Enable PHP error_log for WP:
+To enable detailed logging for cache purging events, add the following to your wp-config.php:
 
+```php
+define( 'WC_PHP_DEBUG', true );
 ```
-define( 'WP_DEBUG', true );
-define( 'WP_DEBUG_LOG', true );
-define( 'WP_DEBUG_DISPLAY', false ); // Optional
-define( 'WC_PHP_DEBUG', true ); // Custom logging
-```
+
+That's all you need! No other debug settings are required, though they may be used for other WordPress debugging purposes.
 
 ### For Gridpane Hosting
 
-Enable Secure WP Debug via toggle switch then add   `define( 'WC_PHP_DEBUG', true );`   to your website user-configs.php
+Add `define( 'WC_PHP_DEBUG', true );` to your website user-configs.php
+
+## Manual Testing
+
+You can manually test the cache purging functionality on any site:
+
+1. Make sure you have `define('WC_PHP_DEBUG', true);` in your wp-config.php
+2. Log in as an administrator
+3. Visit any page on your site with `?test_wcph_purge=1` added to the URL
+   - For example: `https://example.com/any-page/?test_wcph_purge=1`
+4. You'll see a confirmation message that the cache purge was initiated
+5. Check your debug log for the results
+
+This test runs the complete cache purging process, allowing you to verify that all cache systems (WordPress, Beaver Builder, Nginx/LiteSpeed) are being properly cleared.
 
 ## Cache Clearing Order
 
@@ -91,6 +103,4 @@ All trigger the same complete cache purging sequence as traditional WordPress ad
 * Author of the Fork: Gareth Bissland - [GitHub](https://github.com/gbissland)
 
 ### Note
-For detailed changes, see the `CHANGELOG.md` file.
-
-
+For detailed changes, see the [CHANGELOG.md](CHANGELOG.md) file.
