@@ -1,9 +1,9 @@
 ![Weave Cache Purge Helper](https://weave-hk-github.b-cdn.net/weave/plugin-header.png)
 # Weave Cache Purge Helper
 
-This is a fork of the Cache Purge Helper plugin, tailored for use by Weave Digital on GridPane. It includes additional hooks for Beaver Builder, ACF, and WP-Umbrella to trigger NGINX Helper and LiteSpeed Cache plugin purges.
+This is a fork of the Cache Purge Helper plugin, tailored for in-house use by Weave Digital Studio and HumanKind Funeral Websites. It includes additional hooks for WordPress, ACF, WP-Umbrella and Beaver Builder to trigger NGINX Helper or LiteSpeed Cache plugin purges.
 
-## Changes from Original Plugin
+## Changes we've made from the Original Plugin
 
 ### Added
 - Integration with ACF Options pages updates to trigger cache purges.
@@ -16,7 +16,7 @@ This is a fork of the Cache Purge Helper plugin, tailored for use by Weave Digit
 - Versioning starts at `1.0.0` to signify the fork.
 
 ### Removed
-- Support for Elementor, Autoptimize, and Oxygen builders to streamline functionality for Weave Digital's specific needs and Beaver Builder.
+- Support for Elementor, Autoptimize, and Oxygen builders to streamline functionality for Weave Digital's specific in-house needs.
 
 ## Original Plugin
 This fork is based on the Cache Purge Helper plugin by Paul Stoute, Jordan Trask, and Jeff Cleverley.
@@ -55,7 +55,8 @@ To update the plugin, download the latest release from GitHub and follow the ins
 
 ## Logging
 
-To enable detailed logging for cache purging events, add the following to your wp-config.php:
+To enable detailed logging for cache purging events and for debugging, add the following to your wp-config.php:
+Gridpane users can add this to your website user-configs.php instead.
 
 ```php
 define( 'WC_PHP_DEBUG', true );
@@ -63,13 +64,10 @@ define( 'WC_PHP_DEBUG', true );
 
 That's all you need! No other debug settings are required, though they may be used for other WordPress debugging purposes.
 
-### For Gridpane Hosting
-
-Add `define( 'WC_PHP_DEBUG', true );` to your website user-configs.php
 
 ## Manual Testing
 
-You can manually test the cache purging functionality on any site:
+Once logging. You can manually test the cache purging functionality with the following:
 
 1. Make sure you have `define('WC_PHP_DEBUG', true);` in your wp-config.php
 2. Log in as an administrator
@@ -86,11 +84,11 @@ This plugin ensures that caches are cleared in the correct order:
 1. First: Beaver Builder cache is cleared
 2. Second: Nginx Helper or LiteSpeed cache is cleared
 
-This sequence prevents 404 errors that can occur when Nginx serves cached HTML that references old, non-existent Beaver Builder asset files.
+NOTE: This sequence prevents 404 errors that can occur when Nginx serves cached HTML that references old, non-existent Page Builder/Beaver Themer asset files.
 
 ## REST API Support
 
-This plugin automatically clears caches when content is created or updated through the WordPress REST API. This ensures that:
+This plugin automatically clears caches when content (including just meta fields) are created or updated through the WordPress REST API. This ensures that:
 
 1. External applications using the REST API to manage content (like Google Sheets integration)
 2. Headless WordPress implementations
@@ -100,7 +98,7 @@ All trigger the same complete cache purging sequence as traditional WordPress ad
 
 ## Fork Information
 * Original Plugin URI: [Cache Purge Helper on GitHub](https://github.com/managingwp/cache-purge-helper)
-* Author of the Fork: Gareth Bissland - [GitHub](https://github.com/gbissland)
+* Author of this Fork: Gareth Bissland - [GitHub](https://github.com/gbissland)
 
 ### Note
 For detailed changes, see the [CHANGELOG.md](CHANGELOG.md) file.
