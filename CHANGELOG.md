@@ -1,6 +1,6 @@
 # Changelog
 
-## 1.3.1 - 2025-03-06
+## [1.3.1] - 2025-03-06
 - Improved REST API support to better handle meta field updates as well
 - Added manual testing functionality for easier cache purge verification
 - Refined debug logging to reduce noise and focus on important events
