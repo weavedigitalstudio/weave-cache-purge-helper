@@ -3,7 +3,7 @@
 
 This is a fork of the Cache Purge Helper plugin, tailored for in-house use by Weave Digital Studio and HumanKind Funeral Websites. It includes additional hooks for WordPress, ACF, WP-Umbrella and Beaver Builder to trigger NGINX Helper or LiteSpeed Cache plugin purges.
 
-## Changes we've made from the Original Plugin
+## Changes we've made from the original plugin
 
 ### Added
 - Integration with ACF Options pages updates to trigger cache purges.
