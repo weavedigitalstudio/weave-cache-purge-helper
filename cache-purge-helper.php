@@ -3,7 +3,7 @@
  * Plugin Name:       Weave Cache Purge Helper
  * Plugin URI:        https://github.com/weavedigitalstudio/weave-cache-purge-helper/
  * Description:       Fork of Cache Purge Helper for Weave Digital Use. Adds additional WordPress, BB, ACF, and WP-Umbrella hooks to trigger cache purges in the correct order.
- * Version:           1.3.1
+ * Version:           1.3.2
  * Author:            Gareth Bissland, Paul Stoute, Jordan Trask, Jeff Cleverley
  * Author URI:        https://weave.co.nz
  * Text Domain:       weave-cache-purge-helper
@@ -40,11 +40,12 @@ function wcph_write_log($log) {
 }
 
 /**
- * Purge Cache Function
+ * Direct Purge Cache Function
+ * This is used when we need an immediate cache purge without debouncing
  */
-function wcph_purge() {
+function wcph_direct_purge() {
     $called_action_hook = current_filter();
-    wcph_write_log('[' . date('Y-m-d H:i:s') . '] ' . __('wcph - initiated on ', 'weave-cache-purge-helper') . $called_action_hook);
+    wcph_write_log('[' . date('Y-m-d H:i:s') . '] ' . __('wcph - direct purge initiated on ', 'weave-cache-purge-helper') . $called_action_hook);
     
     // Default WordPress Cache Purge
     wp_cache_flush();
@@ -85,13 +86,58 @@ function wcph_purge() {
 }
 
 /**
+ * Debounced Cache Purge Function
+ * Uses a transient to prevent multiple cache purges within a short timeframe
+ */
+function wcph_purge() {
+    $called_action_hook = current_filter();
+    wcph_write_log('[' . date('Y-m-d H:i:s') . '] ' . __('wcph - initiated on ', 'weave-cache-purge-helper') . $called_action_hook);
+    
+    // Use the standard debounce transient name
+    $transient_name = 'wcph_purge_scheduled';
+    
+    // Check if we already have a purge scheduled
+    if (get_transient($transient_name)) {
+        wcph_write_log('[' . date('Y-m-d H:i:s') . '] ' . __('wcph - purge already scheduled, resetting timer', 'weave-cache-purge-helper'));
+        // If we do, just update the transient to extend the timer
+        set_transient($transient_name, true, 3); // 3 seconds
+        return;
+    }
+    
+    // Otherwise, schedule a new purge
+    wcph_write_log('[' . date('Y-m-d H:i:s') . '] ' . __('wcph - scheduling purge in 3 seconds', 'weave-cache-purge-helper'));
+    set_transient($transient_name, true, 3); // 3 seconds
+    
+    // Schedule the actual purge to happen after the delay
+    wp_schedule_single_event(time() + 3, 'wcph_do_purge');
+}
+
+/**
+ * Execute the actual cache purge
+ * This will only run after the debounce period has elapsed
+ */
+function wcph_do_purge() {
+    wcph_write_log('[' . date('Y-m-d H:i:s') . '] ' . __('wcph - executing delayed purge', 'weave-cache-purge-helper'));
+    
+    // Clear the scheduling transient
+    delete_transient('wcph_purge_scheduled');
+    
+    // Call the direct purge function to perform the actual cache clearing
+    wcph_direct_purge();
+}
+
+// Register the action for our delayed purge
+add_action('wcph_do_purge', 'wcph_do_purge');
+
+/**
  * Manual test function for cache purge
  * Added in v1.3.1
  */
 add_action('init', function() {
     if (isset($_GET['test_wcph_purge']) && current_user_can('manage_options')) {
         wcph_write_log('[' . date('Y-m-d H:i:s') . '] ' . __('wcph - Manual test of cache purge system initiated', 'weave-cache-purge-helper'));
-        wcph_purge();
+        // For manual tests, use direct purge to get immediate feedback
+        wcph_direct_purge();
         echo '<div style="background: #fff; border: 1px solid #008000; padding: 20px; margin: 20px; font-family: sans-serif;">
             <h2>Cache Purge Test Completed</h2>
             <p>The cache purge test has been initiated. Check your debug log for results.</p>
@@ -101,15 +147,14 @@ add_action('init', function() {
     }
 });
 
-// REST API hooks - Moved outside the init_hooks function (v1.3.1)
-// This ensures they're registered early enough to catch all REST API requests
+// REST API hooks (v1.3.0)
 add_action('rest_after_insert_post', function($post, $request, $creating) {
     $post_type = $post->post_type;
     $action_type = $creating ? 'created' : 'updated';
     
     wcph_write_log('[' . date('Y-m-d H:i:s') . '] ' . __('wcph - REST API post ' . $action_type . ': ', 'weave-cache-purge-helper') . $post_type . ' (ID: ' . $post->ID . ')');
     wcph_purge();
-    wcph_write_log('[' . date('Y-m-d H:i:s') . '] ' . __('wcph - REST API cache clear completed', 'weave-cache-purge-helper'));
+    wcph_write_log('[' . date('Y-m-d H:i:s') . '] ' . __('wcph - REST API cache clear requested', 'weave-cache-purge-helper'));
 }, 10, 3);
 
 // Add hook for meta field updates (v1.3.1)
@@ -118,7 +163,7 @@ add_action('updated_post_meta', function($meta_id, $post_id, $meta_key, $meta_va
     wcph_purge();
 }, 10, 4);
 
-// WP-Umbrella Integration
+// WP-Umbrella Integration (v1.2.0)
 if (file_exists(WP_PLUGIN_DIR . '/wp-health')) {
     include_once WP_PLUGIN_DIR . '/wp-health/src/Helpers/GodTransient.php';
     include_once WP_PLUGIN_DIR . '/wp-health/src/God/ErrorHandler.php';
@@ -145,7 +190,8 @@ if (file_exists(WP_PLUGIN_DIR . '/wp-health')) {
             public function clear()
             {
                 wcph_write_log('[' . date('Y-m-d H:i:s') . '] ' . __('wcph - WP Umbrella triggered cache clear', 'weave-cache-purge-helper'));
-                wcph_purge();
+                // For third-party integrations like WP Umbrella, use direct purge for immediate effect
+                wcph_direct_purge();
                 wcph_write_log('[' . date('Y-m-d H:i:s') . '] ' . __('wcph - WP Umbrella cache clear completed', 'weave-cache-purge-helper'));
             }
         }
@@ -169,12 +215,13 @@ function wcph_init_hooks() {
     }
     $initialized = true;
     
-    add_action('upgrader_process_complete', 'wcph_purge', 10, 0);
-    add_action('activated_plugin', 'wcph_purge', 10, 0);
-    add_action('deactivated_plugin', 'wcph_purge', 10, 0);
-    add_action('switch_theme', 'wcph_purge', 10, 0);
+    // Critical system events that should use direct purge for immediate effect
+    add_action('upgrader_process_complete', 'wcph_direct_purge', 10, 0);
+    add_action('activated_plugin', 'wcph_direct_purge', 10, 0);
+    add_action('deactivated_plugin', 'wcph_direct_purge', 10, 0);
+    add_action('switch_theme', 'wcph_direct_purge', 10, 0);
     
-    // Beaver Builder
+    // Beaver Builder events - these can use the debounced purge to improve performance
     if ( defined('FL_BUILDER_VERSION') ) {
         add_action('fl_builder_cache_cleared', 'wcph_purge', 10, 0);
         add_action('fl_builder_after_save_layout', 'wcph_purge', 10, 0);
