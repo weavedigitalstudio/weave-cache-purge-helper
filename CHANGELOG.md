@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.3.1 - 2025-03-06
+- Improved REST API support to better handle meta field updates as well
+- Added manual testing functionality for easier cache purge verification
+- Refined debug logging to reduce noise and focus on important events
+- Removed dependency on WP_DEBUG for logging (now only requires WC_PHP_DEBUG)
+- Fixed issue with REST API cache purging not triggering properly
+
 ## [1.3.0] - 2025-03-05
 ### Added
 - WordPress REST API integration for cache purging
