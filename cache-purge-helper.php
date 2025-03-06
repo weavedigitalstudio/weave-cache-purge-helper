@@ -3,7 +3,7 @@
  * Plugin Name:       Weave Cache Purge Helper
  * Plugin URI:        https://github.com/weavedigitalstudio/weave-cache-purge-helper/
  * Description:       Fork of Cache Purge Helper for Weave Digital Use. Adds additional WordPress, BB, ACF, and WP-Umbrella hooks to trigger cache purges in the correct order.
- * Version:           1.3.0
+ * Version:           1.3.1
  * Author:            Gareth Bissland, Paul Stoute, Jordan Trask, Jeff Cleverley
  * Author URI:        https://weave.co.nz
  * Text Domain:       weave-cache-purge-helper
@@ -21,15 +21,17 @@
  */
  
 if ( ! defined( 'ABSPATH' ) ) {
-	exit; // Exit if accessed directly
+    exit; // Exit if accessed directly
 }
 
 /**
  * Log to WordPress Debug Log
+ * 
+ * Simplified to only check for WC_PHP_DEBUG constant
  */
 function wcph_write_log($log) {
-    if ( defined('WP_DEBUG') && WP_DEBUG === true && defined('WC_PHP_DEBUG') && WC_PHP_DEBUG === true ) {
-        if ( is_array($log) || is_object($log) ) {
+    if (defined('WC_PHP_DEBUG') && WC_PHP_DEBUG === true) {
+        if (is_array($log) || is_object($log)) {
             error_log(print_r($log, true));
         } else {
             error_log($log);
@@ -81,6 +83,40 @@ function wcph_purge() {
         wcph_write_log(__('wcph - cache purge completed.', 'weave-cache-purge-helper'));
     }
 }
+
+/**
+ * Manual test function for cache purge
+ * Added in v1.3.1
+ */
+add_action('init', function() {
+    if (isset($_GET['test_wcph_purge']) && current_user_can('manage_options')) {
+        wcph_write_log('[' . date('Y-m-d H:i:s') . '] ' . __('wcph - Manual test of cache purge system initiated', 'weave-cache-purge-helper'));
+        wcph_purge();
+        echo '<div style="background: #fff; border: 1px solid #008000; padding: 20px; margin: 20px; font-family: sans-serif;">
+            <h2>Cache Purge Test Completed</h2>
+            <p>The cache purge test has been initiated. Check your debug log for results.</p>
+            <p><a href="javascript:history.back()">Go Back</a></p>
+        </div>';
+        exit;
+    }
+});
+
+// REST API hooks - Moved outside the init_hooks function (v1.3.1)
+// This ensures they're registered early enough to catch all REST API requests
+add_action('rest_after_insert_post', function($post, $request, $creating) {
+    $post_type = $post->post_type;
+    $action_type = $creating ? 'created' : 'updated';
+    
+    wcph_write_log('[' . date('Y-m-d H:i:s') . '] ' . __('wcph - REST API post ' . $action_type . ': ', 'weave-cache-purge-helper') . $post_type . ' (ID: ' . $post->ID . ')');
+    wcph_purge();
+    wcph_write_log('[' . date('Y-m-d H:i:s') . '] ' . __('wcph - REST API cache clear completed', 'weave-cache-purge-helper'));
+}, 10, 3);
+
+// Add hook for meta field updates (v1.3.1)
+add_action('updated_post_meta', function($meta_id, $post_id, $meta_key, $meta_value) {
+    wcph_write_log('[' . date('Y-m-d H:i:s') . '] ' . __('wcph - Post meta updated: ', 'weave-cache-purge-helper') . $meta_key . ' for post ID: ' . $post_id);
+    wcph_purge();
+}, 10, 4);
 
 // WP-Umbrella Integration
 if (file_exists(WP_PLUGIN_DIR . '/wp-health')) {
@@ -158,16 +194,6 @@ function wcph_init_hooks() {
             }
         });
     }
-    
-    // REST API Support - Added in v1.3.0
-    add_action('rest_after_insert_post', function($post, $request, $creating) {
-        $post_type = $post->post_type;
-        $action_type = $creating ? 'created' : 'updated';
-        
-        wcph_write_log('[' . date('Y-m-d H:i:s') . '] ' . __('wcph - REST API post ' . $action_type . ': ', 'weave-cache-purge-helper') . $post_type . ' (ID: ' . $post->ID . ')');
-        wcph_purge();
-        wcph_write_log('[' . date('Y-m-d H:i:s') . '] ' . __('wcph - REST API cache clear completed', 'weave-cache-purge-helper'));
-    }, 10, 3);
 }
 
 add_action('init', 'wcph_init_hooks');
