@@ -1,7 +1,9 @@
 ![Weave Cache Purge Helper](https://weave-hk-github.b-cdn.net/weave/plugin-header.png)
 # Weave Cache Purge Helper
 
-This is a fork of the Cache Purge Helper plugin, tailored for in-house use by Weave Digital Studio and HumanKind Funeral Websites. It includes additional hooks for WordPress, ACF, WP-Umbrella and Beaver Builder to trigger NGINX Helper or LiteSpeed Cache plugin purges.
+This is a fork of the Cache Purge Helper plugin updated and customised for in-house use by Weave Digital Studio and HumanKind Funeral Websites. 
+It includes additional hooks for WordPress, ACF, WP-Umbrella and Beaver Builder to trigger NGINX Helper or LiteSpeed Cache plugin purges.
+It also batches multiple purges to improve performance.
 
 ---
 
@@ -78,7 +80,10 @@ Once logging. You can manually test the cache purging functionality with the fol
 
 1. Make sure you have `define('WC_PHP_DEBUG', true);` in your wp-config.php
 2. Log in as an administrator
-3. Visit any page on your site with `?test_wcph_purge=1` added to the URL
+3. Visit any page on your site with `?test_wcph_purge=1`  added to the URL
+```php
+?test_wcph_purge=1
+```
    - For example: `https://example.com/any-page/?test_wcph_purge=1`
 4. You'll see a confirmation message that the cache purge was initiated
 5. Check your debug log for the results
