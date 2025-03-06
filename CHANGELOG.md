@@ -1,5 +1,11 @@
 # Changelog
 
+## [1.3.2] - 2025-03-06 - Performance Update
+- Added debounced cache purging to significantly improve performance during post updates
+- Created separate mechanisms for immediate and delayed cache purging
+- Optimised post save operations to reduce the redundant cache clearing. Useful with posts with meta fields.
+- Added extra logging to track debounced cache operations.
+
 ## [1.3.1] - 2025-03-06
 - Improved REST API support to better handle meta field updates as well
 - Added manual testing functionality for easier cache purge verification
