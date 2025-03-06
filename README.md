@@ -3,19 +3,22 @@
 
 This is a fork of the Cache Purge Helper plugin, tailored for in-house use by Weave Digital Studio and HumanKind Funeral Websites. It includes additional hooks for WordPress, ACF, WP-Umbrella and Beaver Builder to trigger NGINX Helper or LiteSpeed Cache plugin purges.
 
+---
+
 ## Changes we've made from the original plugin
 
 ### Added
 - Integration with ACF Options pages updates to trigger cache purges.
 - Integration with WP-Umbrella to ensure proper cache clearing after plugin updates.
 - Integration with WordPress REST API to purge caches when posts (inc meta fields) are created or updated through external applications or scripts.
+- Performance optimisation through intelligent debounced cache purging to improve editing experience and reduce server load.
 - Proper cache clearing sequence (Beaver Builder first, then Nginx/LiteSpeed) to prevent 404 errors.
 
 ### Changed
 - Logging prefix updated from `cphp` to `wcph`.
 - Versioning starts at `1.0.0` to signify the fork.
 
-### Removed
+### Removed / Not used
 - Support for Elementor, Autoptimize, and Oxygen builders to streamline functionality for Weave Digital's specific in-house needs.
 
 ## Original Plugin
@@ -26,6 +29,8 @@ This fork is based on the Cache Purge Helper plugin by Paul Stoute, Jordan Trask
 * Jordan Trask - [GitHub](https://github.com/jordantrizz)
 * Jeff Cleverley - [GridPane](https://gridpane.com)
 * Gareth Bissland - [Weave Digital Studio](https://weave.co.nz) (Fork Author)
+
+---
 
 ## Installation
 
@@ -52,6 +57,7 @@ If you prefer to manually install:
 
 To update the plugin, download the latest release from GitHub and follow the installation steps again. The new version will replace the existing plugin.
 
+---
 
 ## Logging
 
@@ -64,6 +70,7 @@ define( 'WC_PHP_DEBUG', true );
 
 That's all you need! No other debug settings are required, though they may be used for other WordPress debugging purposes.
 
+---
 
 ## Manual Testing
 
@@ -84,7 +91,21 @@ This plugin ensures that caches are cleared in the correct order:
 1. First: Beaver Builder cache is cleared
 2. Second: Nginx Helper or LiteSpeed cache is cleared
 
-NOTE: This sequence prevents 404 errors that can occur when Nginx serves cached HTML that references old, non-existent Page Builder/Beaver Themer asset files.
+This sequence prevents 404 errors that can occur when Nginx serves cached HTML that references old, non-existent Page Builder/Beaver Themer asset files. Additionally, our debouncing mechanism ensures this process occurs efficiently, even during rapid content updates.
+
+---
+
+## Performance Improvements - Intelligent Cache Purging
+
+This version now implements a debouncing mechanism that significantly improves performance during content updates (post saves/updates):
+
+- **Debounced Cache Purging**: When multiple updates occur within a short timeframe (such as during post editing), the plugin 'intelligently' batches the cache purge operations instead of triggering them for each individual change. Content editors will notice significantly faster save operations, especially for complex content types with multiple meta fields or when using page builders. The performance gains are most noticeable during content creation and editing workflows, where multiple cache purges would otherwise occur in rapid succession.
+
+- **Smart Timing**: The system waits for 3 seconds of inactivity before executing a cache purge, ensuring that rapid successive updates don't cause unnecessary server load.
+
+- **Prioritised Direct Purging**: Critical system events (like plugin activation/deactivation or theme changes) still trigger immediate cache purging for maximum responsiveness.
+
+---
 
 ## REST API Support
 
@@ -96,9 +117,11 @@ This plugin automatically clears caches when content (including just meta fields
 
 All trigger the same complete cache purging sequence as traditional WordPress admin edits. This is crucial for maintaining site performance and preventing stale content when using automation or external content management tools.
 
-## Fork Information
+---
+
+### Fork Information
 * Original Plugin URI: [Cache Purge Helper on GitHub](https://github.com/managingwp/cache-purge-helper)
 * Author of this Fork: Gareth Bissland - [GitHub](https://github.com/gbissland)
 
-### Note
+### Changelog
 For detailed changes, see the [CHANGELOG.md](CHANGELOG.md) file.
