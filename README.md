@@ -8,7 +8,7 @@ This is a fork of the Cache Purge Helper plugin, tailored for in-house use by We
 ### Added
 - Integration with ACF Options pages updates to trigger cache purges.
 - Integration with WP-Umbrella to ensure proper cache clearing after plugin updates.
-- Integration with WordPress REST API to purge caches when posts are created or updated through external applications or scripts.
+- Integration with WordPress REST API to purge caches when posts (inc meta fields) are created or updated through external applications or scripts.
 - Proper cache clearing sequence (Beaver Builder first, then Nginx/LiteSpeed) to prevent 404 errors.
 
 ### Changed
