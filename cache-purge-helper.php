@@ -242,8 +242,11 @@ function wcph_init_hooks() {
 
 add_action('init', 'wcph_init_hooks');
 
+// Initialize the updater on init hook to avoid translation loading issues
 if (is_admin()) {
     require_once plugin_dir_path(__FILE__) . 'github-updater.php';
+    
+    // Initialize the updater on init hook
     add_action('init', function() {
         Weave_Cache_Purge_Updater::init(__FILE__);
     });
