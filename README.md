@@ -15,6 +15,7 @@ It also batches multiple purges to improve performance.
 - Integration with WordPress REST API to purge caches when posts (inc meta fields) are created or updated through external applications or scripts.
 - Performance optimisation through intelligent debounced cache purging to improve editing experience and reduce server load.
 - Proper cache clearing sequence (Beaver Builder first, then Nginx/LiteSpeed) to prevent 404 errors.
+- **Automatic GitHub Updates**: The plugin now supports automatic updates via GitHub releases, appearing directly in the WordPress updates screen.
 
 ### Changed
 - Logging prefix updated from `cphp` to `wcph`.
@@ -45,19 +46,15 @@ When installing this plugin from GitHub:
 3. In your WordPress admin panel, go to Plugins → Add New → Upload Plugin
 4. Upload the ZIP file and activate the plugin
 
-### Manual Installation
-
-If you prefer to manually install:
-
-1. Download the source code from the repository
-2. Extract the files on your computer 
-3. Rename the folder to `weave-cache-purge-helper` if needed
-4. Upload the folder to your `/wp-content/plugins/` directory via FTP
-5. Activate the plugin through the WordPress 'Plugins' menu
-
 ### Updates
 
-To update the plugin, download the latest release from GitHub and follow the installation steps again. The new version will replace the existing plugin.
+The plugin now **automatically checks for updates** via GitHub releases.
+
+- Updates will appear in **WordPress → Plugins → Updates**, just like regular WordPress plugins.
+- No need to manually download updates from GitHub.
+- The update process ensures that WordPress fetches the **correct release ZIP**.
+
+If you prefer to update manually, you can still download the latest release from GitHub and follow the installation steps again.
 
 ---
 
