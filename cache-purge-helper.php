@@ -3,7 +3,7 @@
  * Plugin Name:       Weave Cache Purge Helper
  * Plugin URI:        https://github.com/weavedigitalstudio/weave-cache-purge-helper/
  * Description:       Fork of Cache Purge Helper for Weave Digital Use. Adds additional WordPress, BB, ACF, and WP-Umbrella hooks to trigger cache purges in the correct order.
- * Version:           1.3.2
+ * Version:           1.3.3
  * Author:            Gareth Bissland, Paul Stoute, Jordan Trask, Jeff Cleverley
  * Author URI:        https://weave.co.nz
  * Text Domain:       weave-cache-purge-helper
@@ -244,3 +244,8 @@ function wcph_init_hooks() {
 }
 
 add_action('init', 'wcph_init_hooks');
+
+if (is_admin()) {
+    require_once plugin_dir_path(__FILE__) . 'github-updater.php';
+    Weave_Cache_Purge_Updater::init(__FILE__);
+}
