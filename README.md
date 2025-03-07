@@ -23,6 +23,7 @@ It also batches multiple purges to improve performance.
 
 ### Removed / Not used
 - Support for Elementor, Autoptimize, and Oxygen builders to streamline functionality for Weave Digital's specific in-house needs.
+- All internationalisation functions as this is for our in-house use in English.
 
 ## Original Plugin
 This fork is based on the Cache Purge Helper plugin by Paul Stoute, Jordan Trask, and Jeff Cleverley.
