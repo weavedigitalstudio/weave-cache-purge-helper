@@ -4,7 +4,7 @@
  *
  * @package    Weave_Cache_Purge_Helper
  * @subpackage Updates
- * @version    1.1.0
+ * @version    1.1.1
  */
 
 if (!defined('ABSPATH')) {
@@ -53,54 +53,64 @@ class Weave_Cache_Purge_Updater {
     }
 
     /**
-     * Get repository information from GitHub
+     * Get repository information from GitHub with caching
      * 
      * @return object|false Repository info or false on failure
      */
     private function get_repository_info() {
-        if (is_null($this->github_response)) {
-            $request_uri = sprintf(
-                "https://api.github.com/repos/%s/%s/releases/latest",
-                $this->github_username,
-                $this->github_repo
-            );
-
-            $args = [
-                'headers' => [
-                    'User-Agent' => 'WordPress',
-                ]
-            ];
-
-            $response = wp_remote_get($request_uri, $args);
-
-            if (is_wp_error($response)) {
-                error_log("GitHub API request failed: " . $response->get_error_message());
-                return false;
-            }
-
-            if (wp_remote_retrieve_response_code($response) !== 200) {
-                error_log("GitHub API request failed with response code: " . wp_remote_retrieve_response_code($response));
-                return false;
-            }
-
-            $body = json_decode(wp_remote_retrieve_body($response));
-
-            if (!isset($body->tag_name, $body->assets) || empty($body->assets)) {
-                error_log("GitHub API response missing required fields or assets.");
-                return false;
-            }
-
-            // Fetch the actual zip file URL
-            $body->zipball_url = $body->assets[0]->browser_download_url ?? '';
-
-            if (empty($body->zipball_url)) {
-                error_log("No valid download URL found for the latest release.");
-                return false;
-            }
-
-            $this->github_response = $body;
+        if (!is_null($this->github_response)) {
+            return $this->github_response;
+        }
+        
+        // Check for a cached response (cache for 4 hours)
+        $cached = get_transient('weave_cache_purge_helper_github_response');
+        if (false !== $cached) {
+            $this->github_response = $cached;
+            return $this->github_response;
         }
 
+        $request_uri = sprintf(
+            "https://api.github.com/repos/%s/%s/releases/latest",
+            $this->github_username,
+            $this->github_repo
+        );
+
+        $args = [
+            'headers' => [
+                'User-Agent' => 'WordPress',
+            ]
+        ];
+
+        $response = wp_remote_get($request_uri, $args);
+
+        if (is_wp_error($response)) {
+            error_log("GitHub API request failed: " . $response->get_error_message());
+            return false;
+        }
+
+        if (wp_remote_retrieve_response_code($response) !== 200) {
+            error_log("GitHub API request failed with response code: " . wp_remote_retrieve_response_code($response));
+            return false;
+        }
+
+        $body = json_decode(wp_remote_retrieve_body($response));
+
+        if (!isset($body->tag_name, $body->assets) || empty($body->assets)) {
+            error_log("GitHub API response missing required fields or assets.");
+            return false;
+        }
+
+        // Fetch the actual zip file URL
+        $body->zipball_url = $body->assets[0]->browser_download_url ?? '';
+
+        if (empty($body->zipball_url)) {
+            error_log("No valid download URL found for the latest release.");
+            return false;
+        }
+
+        // Cache the response for 4 hours (or use 6 * HOUR_IN_SECONDS for 6 hours)
+        set_transient('weave_cache_purge_helper_github_response', $body, 4 * HOUR_IN_SECONDS);
+        $this->github_response = $body;
         return $this->github_response;
     }
 
