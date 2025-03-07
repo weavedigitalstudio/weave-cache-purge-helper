@@ -4,7 +4,7 @@
  *
  * @package    Weave_Cache_Purge_Helper
  * @subpackage Updates
- * @version    1.1.1
+ * @version    1.1.2
  */
 
 if (!defined('ABSPATH')) {
@@ -22,6 +22,11 @@ class Weave_Cache_Purge_Updater {
     // Plugin icons
     private const ICON_SMALL = "https://weave-hk-github.b-cdn.net/weave/icon-128x128.png";
     private const ICON_LARGE = "https://weave-hk-github.b-cdn.net/weave/icon-256x256.png";
+    
+    // Cache keys and durations
+    private const CACHE_KEY = 'weave_cache_purge_helper_github_response';
+    private const CACHE_DURATION = 4; // Hours
+    private const ERROR_CACHE_DURATION = 1; // Hour for error responses
 
     /**
      * Constructor
@@ -30,13 +35,9 @@ class Weave_Cache_Purge_Updater {
      */
     public function __construct($file) {
         $this->file = $file;
-
-        if (is_admin() && function_exists("get_plugin_data")) {
-            $this->plugin = get_plugin_data($this->file);
-        }
-
         $this->basename = plugin_basename($this->file);
-
+        
+        // Don't process plugin data here, do it only when needed
         // Hook into the WordPress update system
         add_filter("pre_set_site_transient_update_plugins", [$this, "check_update"]);
         add_filter("plugins_api", [$this, "plugin_info"], 20, 3);
@@ -49,7 +50,27 @@ class Weave_Cache_Purge_Updater {
      * @param string $file Main plugin file path
      */
     public static function init($file) {
-        new self($file);
+        static $instance = null;
+        
+        // Ensure we only create one instance
+        if ($instance === null) {
+            $instance = new self($file);
+        }
+        
+        return $instance;
+    }
+
+    /**
+     * Get plugin data only when needed
+     *
+     * @return array Plugin data
+     */
+    private function get_plugin_data() {
+        if (empty($this->plugin) && is_admin() && function_exists("get_plugin_data")) {
+            $this->plugin = get_plugin_data($this->file);
+        }
+        
+        return $this->plugin;
     }
 
     /**
@@ -62,9 +83,14 @@ class Weave_Cache_Purge_Updater {
             return $this->github_response;
         }
         
-        // Check for a cached response (cache for 4 hours)
-        $cached = get_transient('weave_cache_purge_helper_github_response');
+        // Check for a cached response
+        $cached = get_transient(self::CACHE_KEY);
         if (false !== $cached) {
+            // Check if this is an error response (we store errors as an array with status key)
+            if (is_array($cached) && isset($cached['status']) && $cached['status'] === 'error') {
+                return false; // Return false but don't make a new request
+            }
+            
             $this->github_response = $cached;
             return $this->github_response;
         }
@@ -77,7 +103,7 @@ class Weave_Cache_Purge_Updater {
 
         $args = [
             'headers' => [
-                'User-Agent' => 'WordPress',
+                'User-Agent' => 'WordPress/' . get_bloginfo('version'),
             ]
         ];
 
@@ -85,11 +111,16 @@ class Weave_Cache_Purge_Updater {
 
         if (is_wp_error($response)) {
             error_log("GitHub API request failed: " . $response->get_error_message());
+            // Cache error response to prevent constant retries
+            set_transient(self::CACHE_KEY, ['status' => 'error'], self::ERROR_CACHE_DURATION * HOUR_IN_SECONDS);
             return false;
         }
 
-        if (wp_remote_retrieve_response_code($response) !== 200) {
-            error_log("GitHub API request failed with response code: " . wp_remote_retrieve_response_code($response));
+        $response_code = wp_remote_retrieve_response_code($response);
+        if ($response_code !== 200) {
+            error_log("GitHub API request failed with response code: " . $response_code);
+            // Cache error response to prevent constant retries
+            set_transient(self::CACHE_KEY, ['status' => 'error'], self::ERROR_CACHE_DURATION * HOUR_IN_SECONDS);
             return false;
         }
 
@@ -97,6 +128,8 @@ class Weave_Cache_Purge_Updater {
 
         if (!isset($body->tag_name, $body->assets) || empty($body->assets)) {
             error_log("GitHub API response missing required fields or assets.");
+            // Cache error response to prevent constant retries
+            set_transient(self::CACHE_KEY, ['status' => 'error'], self::ERROR_CACHE_DURATION * HOUR_IN_SECONDS);
             return false;
         }
 
@@ -105,11 +138,13 @@ class Weave_Cache_Purge_Updater {
 
         if (empty($body->zipball_url)) {
             error_log("No valid download URL found for the latest release.");
+            // Cache error response to prevent constant retries
+            set_transient(self::CACHE_KEY, ['status' => 'error'], self::ERROR_CACHE_DURATION * HOUR_IN_SECONDS);
             return false;
         }
 
-        // Cache the response for 4 hours (or use 6 * HOUR_IN_SECONDS for 6 hours)
-        set_transient('weave_cache_purge_helper_github_response', $body, 4 * HOUR_IN_SECONDS);
+        // Cache the successful response
+        set_transient(self::CACHE_KEY, $body, self::CACHE_DURATION * HOUR_IN_SECONDS);
         $this->github_response = $body;
         return $this->github_response;
     }
@@ -125,6 +160,9 @@ class Weave_Cache_Purge_Updater {
             return $transient;
         }
 
+        // Load plugin data only when needed
+        $this->get_plugin_data();
+        
         $repository_info = $this->get_repository_info();
         if (!$repository_info) {
             return $transient;
@@ -164,6 +202,9 @@ class Weave_Cache_Purge_Updater {
             return $res;
         }
 
+        // Load plugin data only when needed
+        $this->get_plugin_data();
+        
         $repository_info = $this->get_repository_info();
         if (!$repository_info) {
             return $res;
