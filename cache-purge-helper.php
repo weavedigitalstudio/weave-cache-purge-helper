@@ -24,6 +24,11 @@ if ( ! defined( 'ABSPATH' ) ) {
     exit; // Exit if accessed directly
 }
 
+add_action( 'plugins_loaded', 'wcph_load_textdomain' );
+function wcph_load_textdomain() {
+    load_plugin_textdomain( 'weave-cache-purge-helper', false, dirname( plugin_basename( __FILE__ ) ) . '/languages/' );
+}
+
 /**
  * Log to WordPress Debug Log
  * 
