@@ -244,5 +244,7 @@ add_action('init', 'wcph_init_hooks');
 
 if (is_admin()) {
     require_once plugin_dir_path(__FILE__) . 'github-updater.php';
-    Weave_Cache_Purge_Updater::init(__FILE__);
+    add_action('init', function() {
+        Weave_Cache_Purge_Updater::init(__FILE__);
+    });
 }
