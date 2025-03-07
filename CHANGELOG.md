@@ -1,5 +1,9 @@
 # Changelog
 
+## [1.3.3] - 2025-03-07 - Auto updater
+- Implemented **automatic GitHub updates** for the plugin.
+- Now updates are detected via **GitHub releases**, allowing seamless plugin updates in WordPress.
+
 ## [1.3.2] - 2025-03-06 - Performance Update
 - Added debounced cache purging to significantly improve performance during post updates
 - Created separate mechanisms for immediate and delayed cache purging
