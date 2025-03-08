@@ -4,7 +4,7 @@
  *
  * @package    Weave_Cache_Purge_Helper
  * @subpackage Updates
- * @version    1.1.2
+ * @version    1.1.3
  */
 
 if (!defined('ABSPATH')) {
@@ -71,6 +71,16 @@ class Weave_Cache_Purge_Updater {
         }
         
         return $this->plugin;
+    }
+
+    /**
+     * Normalize a version string by removing 'v' prefix
+     * 
+     * @param string $version Version string
+     * @return string Normalized version
+     */
+    private function normalize_version($version) {
+        return ltrim($version, "v");
     }
 
     /**
@@ -168,10 +178,20 @@ class Weave_Cache_Purge_Updater {
             return $transient;
         }
 
-        $current_version = $transient->checked[$this->basename] ?? "";
-        $latest_version = ltrim($repository_info->tag_name, "v");
+        // Get current version from plugin header data (not transient)
+        $current_version = $this->get_plugin_data()['Version'];
+        
+        // Normalize versions by removing 'v' prefix
+        $current_version_normalized = $this->normalize_version($current_version);
+        $latest_version = $this->normalize_version($repository_info->tag_name);
 
-        if (version_compare($latest_version, $current_version, "gt")) {
+        // Debug log to help troubleshoot
+        if (defined('WP_DEBUG') && WP_DEBUG) {
+            error_log("GitHub Updater - Current version: {$current_version_normalized}, Latest version: {$latest_version}");
+        }
+
+        // Only add to update response if GitHub version is strictly greater than current version
+        if (version_compare($latest_version, $current_version_normalized, ">")) {
             $plugin = [
                 "slug" => dirname($this->basename),
                 "package" => $repository_info->zipball_url,
@@ -184,6 +204,27 @@ class Weave_Cache_Purge_Updater {
             ];
 
             $transient->response[$this->basename] = (object) $plugin;
+        } else {
+            // Make sure we're not in the response array if the version is the same or older
+            if (isset($transient->response[$this->basename])) {
+                unset($transient->response[$this->basename]);
+            }
+            
+            // Add to the no_update list to show as "up to date"
+            if (!isset($transient->no_update[$this->basename])) {
+                $plugin = [
+                    "slug" => dirname($this->basename),
+                    "plugin" => $this->basename,
+                    "new_version" => $latest_version,
+                    "url" => "",
+                    "package" => "",
+                    "icons" => [
+                        "1x" => self::ICON_SMALL,
+                        "2x" => self::ICON_LARGE,
+                    ],
+                ];
+                $transient->no_update[$this->basename] = (object) $plugin;
+            }
         }
 
         return $transient;
@@ -211,9 +252,9 @@ class Weave_Cache_Purge_Updater {
         }
 
         $info = new \stdClass();
-        $info->name = "Weave Cache Purge Helper";
+        $info->name = $this->get_plugin_data()['Name'];
         $info->slug = dirname($this->basename);
-        $info->version = ltrim($repository_info->tag_name, "v");
+        $info->version = $this->normalize_version($repository_info->tag_name);
         $info->tested = get_bloginfo("version");
         $info->last_updated = $repository_info->published_at ?? "";
         $info->download_link = $repository_info->zipball_url;
@@ -239,6 +280,9 @@ class Weave_Cache_Purge_Updater {
         $install_directory = plugin_dir_path($this->file);
         $wp_filesystem->move($result["destination"], $install_directory);
         $result["destination"] = $install_directory;
+
+        // Clear the cache to force a fresh check
+        delete_transient(self::CACHE_KEY);
 
         return $result;
     }
