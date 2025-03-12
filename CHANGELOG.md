@@ -1,5 +1,8 @@
 # Changelog
 
+## [1.3.5] - 2025-03-12
+- **Improved performance:** Prevented unnecessary cache purges triggered by WordPress internal updates (_edit_lock, _edit_last)
+- 
 ## [1.3.4] - 2025-03-08 - Auto updater
 - Implemented **automatic GitHub updates** for the plugin.
 - Now updates are detected via **GitHub releases**, allowing seamless plugin updates in WordPress.
