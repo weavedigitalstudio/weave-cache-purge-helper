@@ -3,7 +3,7 @@
  * Plugin Name:       Weave Cache Purge Helper
  * Plugin URI:        https://github.com/weavedigitalstudio/weave-cache-purge-helper/
  * Description:       Fork of Cache Purge Helper for Weave Digital Use. Adds additional WordPress, BB, ACF, and WP-Umbrella hooks to trigger cache purges in the correct order.
- * Version:           1.3.5
+ * Version:           1.3.6
  * Author:            Gareth Bissland, Paul Stoute, Jordan Trask, Jeff Cleverley
  * Author URI:        https://weave.co.nz
  * Requires PHP:      7.2
@@ -153,16 +153,6 @@ add_action('rest_after_insert_post', function($post, $request, $creating) {
     wcph_purge();
     wcph_write_log('[' . date('Y-m-d H:i:s') . '] wcph - REST API cache clear requested');
 }, 10, 3);
-
-// Add hook for meta field updates (v1.3.1)
-add_action('updated_post_meta', function($meta_id, $post_id, $meta_key, $meta_value) {
-    // Don't trigger purges for edit locks and other standard WP meta updates
-    if ($meta_key === '_edit_lock' || $meta_key === '_edit_last') {
-        return;
-    }  
-    wcph_write_log('[' . date('Y-m-d H:i:s') . '] wcph - Post meta updated: ' . $meta_key . ' for post ID: ' . $post_id);
-    wcph_purge();
-}, 10, 4);
 
 // WP-Umbrella Integration (v1.2.0)
 if (file_exists(WP_PLUGIN_DIR . '/wp-health')) {

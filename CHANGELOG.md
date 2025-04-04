@@ -1,5 +1,9 @@
 # Changelog
 
+## [1.3.6] - 2025-04-04
+- **Refactor:** Removed the general `updated_post_meta` hook to prevent excessive cache purging from plugin/theme meta updates.
+- **Note:** Cache purging for specific meta fields updated via REST API should now be handled in the relevant custom plugin or theme.
+
 ## [1.3.5] - 2025-03-12
 - **Improved performance:** Prevented unnecessary cache purges triggered by WordPress internal updates (_edit_lock, _edit_last)
 - 

@@ -12,7 +12,7 @@ It also batches multiple purges to improve performance.
 ### Added
 - Integration with ACF Options pages updates to trigger cache purges.
 - Integration with WP-Umbrella to ensure proper cache clearing after plugin updates.
-- Integration with WordPress REST API to purge caches when posts (inc meta fields) are created or updated through external applications or scripts.
+- Integration with WordPress REST API to purge caches when posts are created or updated through external applications or scripts.
 - Performance optimisation through intelligent debounced cache purging to improve editing experience and reduce server load.
 - Proper cache clearing sequence (Beaver Builder first, then Nginx/LiteSpeed) to prevent 404 errors.
 - **Automatic GitHub Updates**: The plugin now supports automatic updates via GitHub releases, appearing directly in the WordPress updates screen.
@@ -100,11 +100,11 @@ This sequence prevents 404 errors that can occur when Nginx serves cached HTML t
 
 ## Performance Improvements - Intelligent Cache Purging
 
-This version now implements a debouncing mechanism that significantly improves performance during content updates (post saves/updates):
+This version now implements a debouncing mechanism that significantly improves performance during content updates (like saving layouts or posts via the REST API):
 
-- **Debounced Cache Purging**: When multiple updates occur within a short timeframe (such as during post editing), the plugin 'intelligently' batches the cache purge operations instead of triggering them for each individual change. Content editors will notice significantly faster save operations, especially for complex content types with multiple meta fields or when using page builders. The performance gains are most noticeable during content creation and editing workflows, where multiple cache purges would otherwise occur in rapid succession.
+- **Debounced Cache Purging**: When multiple updates occur within a short timeframe (such as during rapid saves or edits), the plugin 'intelligently' schedules a single cache purge operation after a short delay, instead of triggering one for each individual change. Content editors and automated processes will notice significantly faster save operations, especially when using page builders or making multiple REST API calls in succession. The performance gains are most noticeable during editing workflows where multiple cache purges might otherwise occur rapidly.
 
-- **Smart Timing**: The system waits for 3 seconds of inactivity before executing a cache purge, ensuring that rapid successive updates don't cause unnecessary server load.
+- **Smart Timing**: The system waits for 3 seconds of inactivity before executing a scheduled cache purge, ensuring that rapid successive updates don't cause unnecessary server load.
 
 - **Prioritised Direct Purging**: Critical system events (like plugin activation/deactivation or theme changes) still trigger immediate cache purging for maximum responsiveness.
 
@@ -112,13 +112,15 @@ This version now implements a debouncing mechanism that significantly improves p
 
 ## REST API Support
 
-This plugin automatically clears caches when content (including just meta fields) are created or updated through the WordPress REST API. This ensures that:
+This plugin automatically clears caches when content is created or updated through the WordPress REST API via the `rest_after_insert_post` hook. This ensures that:
 
 1. External applications using the REST API to manage content (like Google Sheets integration)
 2. Headless WordPress implementations
 3. Custom scripts or automation tools
 
 All trigger the same complete cache purging sequence as traditional WordPress admin edits. This is crucial for maintaining site performance and preventing stale content when using automation or external content management tools.
+
+**Note:** Cache clearing based on *specific* meta field updates via the REST API should be handled separately within the custom plugin or theme responsible for those fields, by calling the `wcph_purge()` function when needed.
 
 ---
 
