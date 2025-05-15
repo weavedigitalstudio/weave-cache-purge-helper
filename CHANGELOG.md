@@ -1,5 +1,9 @@
 # Changelog
 
+## [1.3.7] - 2025-05-16
+- **Performance:** Removed debouncing system to improve admin panel responsiveness
+- **Note:** Direct cache purging is now used for all operations to reduce overhead
+
 ## [1.3.6] - 2025-04-04
 - **Refactor:** Removed the general `updated_post_meta` hook to prevent excessive cache purging from plugin/theme meta updates.
 - **Note:** Cache purging for specific meta fields updated via REST API should now be handled in the relevant custom plugin or theme.

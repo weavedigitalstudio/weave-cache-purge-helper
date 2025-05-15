@@ -3,7 +3,6 @@
 
 This is a fork of the Cache Purge Helper plugin updated and customised for in-house use by Weave Digital Studio and HumanKind Funeral Websites. 
 It includes additional hooks for WordPress, ACF, WP-Umbrella and Beaver Builder to trigger NGINX Helper or LiteSpeed Cache plugin purges.
-It also batches multiple purges to improve performance.
 
 ---
 
@@ -13,13 +12,13 @@ It also batches multiple purges to improve performance.
 - Integration with ACF Options pages updates to trigger cache purges.
 - Integration with WP-Umbrella to ensure proper cache clearing after plugin updates.
 - Integration with WordPress REST API to purge caches when posts are created or updated through external applications or scripts.
-- Performance optimisation through intelligent debounced cache purging to improve editing experience and reduce server load.
 - Proper cache clearing sequence (Beaver Builder first, then Nginx/LiteSpeed) to prevent 404 errors.
 - **Automatic GitHub Updates**: The plugin now supports automatic updates via GitHub releases, appearing directly in the WordPress updates screen.
 
 ### Changed
 - Logging prefix updated from `cphp` to `wcph`.
 - Versioning starts at `1.0.0` to signify the fork.
+- Optimised cache purging mechanism for improved admin performance.
 
 ### Removed / Not used
 - Support for Elementor, Autoptimize, and Oxygen builders to streamline functionality for Weave Digital's specific in-house needs.
@@ -43,7 +42,7 @@ This fork is based on the Cache Purge Helper plugin by Paul Stoute, Jordan Trask
 When installing this plugin from GitHub:
 
 1. Go to the [Releases](https://github.com/weavedigitalstudio/weave-cache-purge-helper/releases) page
-2. Download the latest release ZIP file (e.g., `weave-cache-purge-helper-1.2.0.zip`)
+2. Download the latest release ZIP file
 3. In your WordPress admin panel, go to Plugins → Add New → Upload Plugin
 4. Upload the ZIP file and activate the plugin
 
@@ -74,11 +73,11 @@ That's all you need! No other debug settings are required, though they may be us
 
 ## Manual Testing
 
-Once logging. You can manually test the cache purging functionality with the following:
+You can manually test the cache purging functionality with the following:
 
 1. Make sure you have `define('WC_PHP_DEBUG', true);` in your wp-config.php
 2. Log in as an administrator
-3. Visit any page on your site with `?test_wcph_purge=1`  added to the URL
+3. Visit any page on your site with `?test_wcph_purge=1` added to the URL
 ```php
 ?test_wcph_purge=1
 ```
@@ -94,19 +93,7 @@ This plugin ensures that caches are cleared in the correct order:
 1. First: Beaver Builder cache is cleared
 2. Second: Nginx Helper or LiteSpeed cache is cleared
 
-This sequence prevents 404 errors that can occur when Nginx serves cached HTML that references old, non-existent Page Builder/Beaver Themer asset files. Additionally, our debouncing mechanism ensures this process occurs efficiently, even during rapid content updates.
-
----
-
-## Performance Improvements - Intelligent Cache Purging
-
-This version now implements a debouncing mechanism that significantly improves performance during content updates (like saving layouts or posts via the REST API):
-
-- **Debounced Cache Purging**: When multiple updates occur within a short timeframe (such as during rapid saves or edits), the plugin 'intelligently' schedules a single cache purge operation after a short delay, instead of triggering one for each individual change. Content editors and automated processes will notice significantly faster save operations, especially when using page builders or making multiple REST API calls in succession. The performance gains are most noticeable during editing workflows where multiple cache purges might otherwise occur rapidly.
-
-- **Smart Timing**: The system waits for 3 seconds of inactivity before executing a scheduled cache purge, ensuring that rapid successive updates don't cause unnecessary server load.
-
-- **Prioritised Direct Purging**: Critical system events (like plugin activation/deactivation or theme changes) still trigger immediate cache purging for maximum responsiveness.
+This sequence prevents 404 errors that can occur when Nginx serves cached HTML that references old, non-existent Page Builder/Beaver Themer asset files.
 
 ---
 
@@ -119,8 +106,6 @@ This plugin automatically clears caches when content is created or updated throu
 3. Custom scripts or automation tools
 
 All trigger the same complete cache purging sequence as traditional WordPress admin edits. This is crucial for maintaining site performance and preventing stale content when using automation or external content management tools.
-
-**Note:** Cache clearing based on *specific* meta field updates via the REST API should be handled separately within the custom plugin or theme responsible for those fields, by calling the `wcph_purge()` function when needed.
 
 ---
 
