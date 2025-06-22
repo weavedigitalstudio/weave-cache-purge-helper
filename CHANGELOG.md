@@ -1,4 +1,13 @@
 # Changelog
+# [1.3.8] - 2025-06-23
+### Fixed
+- **WP-Umbrella Conflict:** Resolved fatal error caused by WP-Umbrella's buggy `GlobalNginx` class calling `purge_all()` on null object
+- **Compatibility:** Implemented conflict prevention system to remove WP-Umbrella's cache handler and use our properly implemented version
+
+### Changed
+- **WordPress Compatibility:** Updated "Tested up to" version from 6.3 to 6.8.1
+- **WP-Umbrella Integration:** Increased filter priority to 20 to ensure our cache compatibility overrides take precedence
+- **Logging:** Added debug logging when WP-Umbrella cache compatibility conflicts are detected and resolved
 
 ## [1.3.7] - 2025-05-16
 - **Performance:** Removed debouncing system to improve admin panel responsiveness

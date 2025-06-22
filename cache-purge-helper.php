@@ -3,12 +3,12 @@
  * Plugin Name:       Weave Cache Purge Helper
  * Plugin URI:        https://github.com/weavedigitalstudio/weave-cache-purge-helper/
  * Description:       Fork of Cache Purge Helper for Weave Digital Use. Adds additional WordPress, BB, ACF, and WP-Umbrella hooks to trigger cache purges in the correct order.
- * Version:           1.3.7
+ * Version:           1.3.8
  * Author:            Gareth Bissland, Paul Stoute, Jordan Trask, Jeff Cleverley
  * Author URI:        https://weave.co.nz
  * Requires PHP:      7.2
  * Requires at least: 5.0
- * Tested up to:      6.3
+ * Tested up to:      6.8
  *
  * @link              https://github.com/weavedigitalstudio/weave-cache-purge-helper/
  * @since             1.0.1
@@ -114,10 +114,20 @@ if (file_exists(WP_PLUGIN_DIR . '/wp-health')) {
             }
         }
         
-        add_filter('wp_umbrella_cache_compatibilities', 'wpu_add_cache_compatibilities');
+        // Override WP-Umbrella's cache compatibilities to remove their buggy GlobalNginx class
+        add_filter('wp_umbrella_cache_compatibilities', 'wpu_add_cache_compatibilities', 20); // Higher priority
         function wpu_add_cache_compatibilities($classes)
         {
+            // Remove WP-Umbrella's buggy GlobalNginx class if present
+            $classes = array_filter($classes, function($class) {
+                return $class !== "\WPUmbrella\Thirds\Cache\GlobalNginx";
+            });
+            
+            // Add our properly implemented version
             $classes[] = '\WPUmbrellaNginxHelper';
+            
+            wcph_write_log('wcph - WP-Umbrella cache compatibilities updated, removed buggy GlobalNginx class');
+            
             return $classes;
         }
     }
