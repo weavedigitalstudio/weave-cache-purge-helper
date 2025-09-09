@@ -97,6 +97,52 @@ This sequence prevents 404 errors that can occur when Nginx serves cached HTML t
 
 ---
 
+## BunnyCDN Integration (Optional)
+
+As of version 1.4.0, this plugin includes optional BunnyCDN integration for sites using BunnyCDN as their content delivery network. This feature is disabled by default and only activates when configured via constants.
+
+### Requirements
+
+- A BunnyCDN account with an active pull zone
+- Your BunnyCDN API key (found in your BunnyCDN dashboard under Account Settings)
+- Your Pull Zone ID (found in your BunnyCDN dashboard)
+- **No additional plugins required** - this integration is self-contained
+
+### Configuration
+
+To enable BunnyCDN cache purging, add these constants to your `wp-config.php` or GridPane `user-configs.php`:
+
+```php
+// BunnyCDN Integration
+define('WCPH_BUNNY_ENABLED', true);
+define('WCPH_BUNNY_API_KEY', 'your-bunnycdn-api-key');
+define('WCPH_BUNNY_PULL_ZONE_ID', '123456'); // Your numeric pull zone ID
+define('WCPH_BUNNY_CDN_URL', 'https://your-cdn.b-cdn.net'); // Your CDN URL (optional, for logging)
+```
+
+### How It Works
+
+When BunnyCDN is enabled, the plugin adds a third cache layer to the purge sequence:
+1. **First**: Beaver Builder cache is cleared
+2. **Second**: Nginx Helper or LiteSpeed cache is cleared  
+3. **Third**: BunnyCDN cache is purged via API (when enabled)
+
+### Purging Strategy
+
+- **Single Page Purge**: When editing with Beaver Builder, only the specific page URL is purged from BunnyCDN
+- **Full Zone Purge**: System events (plugin updates, ACF options, WP-Umbrella updates) trigger a complete CDN purge
+- **REST API**: Posts updated via REST API trigger individual URL purges
+
+### Important Notes
+
+- This feature only affects sites with the constants defined (~3% of our sites)
+- Sites without BunnyCDN constants continue to work exactly as before
+- The integration follows GridPane's [BunnyCDN setup guide](https://gridpane.com/kb/how-to-set-up-bunny-cdn/)
+- Works alongside CDN URL rewriting plugins like Perfmatters
+- Does NOT require any additional BunnyCDN plugins
+
+---
+
 ## REST API Support
 
 This plugin automatically clears caches when content is created or updated through the WordPress REST API via the `rest_after_insert_post` hook. This ensures that:
