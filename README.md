@@ -99,7 +99,7 @@ This sequence prevents 404 errors that can occur when Nginx serves cached HTML t
 
 ## BunnyCDN Integration (Optional)
 
-As of version 1.4.0, this plugin includes optional BunnyCDN integration for sites using BunnyCDN as their content delivery network. This feature is disabled by default and only activates when configured via constants.
+As of version 1.4.0, this plugin includes optional BunnyCDN clearing for sites using BunnyCDN as their content delivery network. This feature is disabled by default and only activates when configured via constants.
 
 ### Requirements
 
@@ -132,6 +132,15 @@ When BunnyCDN is enabled, the plugin adds a third cache layer to the purge seque
 - **Single Page Purge**: When editing with Beaver Builder, only the specific page URL is purged from BunnyCDN
 - **Full Zone Purge**: System events (plugin updates, ACF options, WP-Umbrella updates) trigger a complete CDN purge
 - **REST API**: Posts updated via REST API trigger individual URL purges
+
+### Testing BunnyCDN Integration
+
+Once configured, you can test the BunnyCDN purging using the manual test function:
+1. Ensure `define('WC_PHP_DEBUG', true);` is set
+2. Visit any page with `?test_wcph_purge=1` added to the URL
+3. Check your debug log for "BunnyCDN full purge successful" message
+
+See the [Manual Testing](#manual-testing) section above for full details.
 
 ### Important Notes
 
