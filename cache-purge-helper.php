@@ -40,10 +40,6 @@ function wcph_write_log($log) {
  * Cache Purge Function
  * Handles all cache purging operations in the correct sequence
  */
-/**
- * Cache Purge Function
- * Handles all cache purging operations in the correct sequence
- */
 function wcph_direct_purge() {
     $called_action_hook = current_filter();
     wcph_write_log('[' . date('Y-m-d H:i:s') . '] wcph - initiated on ' . $called_action_hook);
@@ -110,7 +106,7 @@ function wcph_direct_purge() {
             );
             
             if (in_array($called_action_hook, $bb_hooks)) {
-                // For BB saves, purge the current page URL
+                // For BB saves, try to purge the current page URL
                 $current_url = wcph_get_current_page_url();
                 if ($current_url) {
                     wcph_bunny_purge_url($current_url);
@@ -119,6 +115,9 @@ function wcph_direct_purge() {
                     wcph_write_log('wcph - Could not determine current page URL, doing full BunnyCDN purge');
                     wcph_bunny_purge_all();
                 }
+            } else {
+                // For any other trigger, do a full purge
+                wcph_bunny_purge_all();
             }
         }
     }
@@ -220,6 +219,14 @@ function wcph_get_current_page_url() {
     if (defined('DOING_AJAX') && DOING_AJAX) {
         // Check if we have a post_id in the request
         $post_id = isset($_POST['post_id']) ? absint($_POST['post_id']) : 0;
+        if (!$post_id && isset($_POST['fl_builder_data'])) {
+            // Try to get from fl_builder_data array
+            $fl_data = $_POST['fl_builder_data'];
+            if (is_array($fl_data) && isset($fl_data['post_id'])) {
+                $post_id = absint($fl_data['post_id']);
+            }
+        }
+        
         if ($post_id) {
             return get_permalink($post_id);
         }
