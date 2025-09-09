@@ -1,4 +1,26 @@
 # Changelog
+## [1.4.0] - 2025-09-09
+### Added
+- **BunnyCDN Integration:** Optional CDN cache purging support via configuration constants
+- **Smart CDN Purging:** Single page purge for Beaver Builder edits, full zone purge for system events
+- **CDN for REST API:** BunnyCDN cache clearing for posts updated via REST API
+- **Configurable CDN:** Enable per-site using constants (WCPH_BUNNY_ENABLED, WCPH_BUNNY_API_KEY, etc.)
+
+### Changed
+- **Purge Sequence:** Added third cache layer - now clears BB → Nginx/LiteSpeed → BunnyCDN (when enabled)
+- **URL Detection:** Improved page URL detection for Beaver Builder AJAX saves
+- **Fallback Logic:** All cache operations now trigger BunnyCDN when enabled (previously some were missed)
+
+### Fixed
+- **Manual Test:** Cache test URL parameter now properly triggers BunnyCDN purge
+- **BB URL Detection:** Better detection of current page during Beaver Builder saves
+- **ACF Options:** Ensures full BunnyCDN purge when ACF options are updated
+
+### Technical Notes
+- BunnyCDN integration only activates when constants are defined (no impact on sites without CDN)
+- Maintains backward compatibility - existing sites work unchanged
+- Supports ~3% of sites using BunnyCDN while keeping plugin lightweight for the other 97%
+
 # [1.3.8] - 2025-06-23
 ### Fixed
 - **WP-Umbrella Conflict:** Resolved fatal error caused by WP-Umbrella's buggy `GlobalNginx` class calling `purge_all()` on null object
