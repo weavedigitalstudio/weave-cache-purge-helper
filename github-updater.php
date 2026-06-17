@@ -185,8 +185,8 @@ class Weave_Cache_Purge_Updater {
         $current_version_normalized = $this->normalize_version($current_version);
         $latest_version = $this->normalize_version($repository_info->tag_name);
 
-        // Debug log to help troubleshoot
-        if (defined('WP_DEBUG') && WP_DEBUG) {
+        // Debug log to help troubleshoot (opt-in, off by default so it doesn't flood logs on WP_DEBUG sites)
+        if (defined('WEAVE_UPDATER_DEBUG') && WEAVE_UPDATER_DEBUG) {
             error_log("GitHub Updater - Current version: {$current_version_normalized}, Latest version: {$latest_version}");
         }
 

@@ -1,4 +1,8 @@
 # Changelog
+## [1.3.9] - 2026-06-17
+### Fixed
+- **Logging:** The GitHub updater's "Current version / Latest version" debug line no longer fires on every admin request when `WP_DEBUG` is on. It's now gated behind the opt-in `WEAVE_UPDATER_DEBUG` constant, so it stays silent by default and no longer floods client error logs. Genuine API failure logs (request failed, bad response code, missing fields) are unchanged.
+
 # [1.3.8] - 2025-06-23
 ### Fixed
 - **WP-Umbrella Conflict:** Resolved fatal error caused by WP-Umbrella's buggy `GlobalNginx` class calling `purge_all()` on null object

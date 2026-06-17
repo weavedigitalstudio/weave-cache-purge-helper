@@ -1,2 +1,5 @@
 /.nova
 .DS_Store
+CLAUDE.md
+.claude/
+screenshots/
