@@ -87,6 +87,40 @@ You can manually test the cache purging functionality with the following:
 
 This test runs the complete cache purging process, allowing you to verify that all cache systems (WordPress, Beaver Builder, Nginx/LiteSpeed) are being properly cleared.
 
+## What this plugin does NOT cover: git deploys
+
+**This plugin hooks WordPress events.** Plugin activation and deactivation,
+theme switch, upgrader completion, Beaver Builder and ACF saves, WP Umbrella
+updates. Every one of those runs WordPress, which is how `wcph_direct_purge()`
+gets called.
+
+**A git deploy never runs WordPress.** GridPane rsyncs files onto disk, so no
+hook fires and this plugin never sees the deploy. On a site deploying its theme
+from git, a pushed `style.css` change would sit behind a stale cache
+indefinitely, and the Beaver Builder asset cache in particular caches generated
+CSS per page.
+
+That gap is closed on the deploy side, not here, by
+`.gpconfig/postdeploy.sh` in the site's deploy repo. It calls this plugin's own
+routine so there is one definition of "purge everything":
+
+```bash
+wp --path="$H" eval \
+  'if (function_exists("wcph_direct_purge")) { wcph_direct_purge(); echo "ok"; }'
+```
+
+Two consequences worth keeping in mind when changing this plugin:
+
+- **`wcph_direct_purge()` is called from outside WordPress requests**, by
+  WP-CLI in a deploy script running as the site system user. Keep it callable
+  with no admin context, no current user and no request globals.
+- **Renaming it breaks theme deploys** on every git-deployed site. The deploy
+  script falls back to `wp cache flush` and `wp nginx-helper purge-all`, which
+  do not clear the Beaver Builder cache, so the failure is silent and looks
+  like "CSS changes are not showing".
+
+Full detail: `weave-ops/docs/theme-git-deploy.md`, section 7.
+
 ## Cache Clearing Order
 
 This plugin ensures that caches are cleared in the correct order:
