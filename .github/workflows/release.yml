@@ -9,7 +9,7 @@ jobs:
     
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v7
       
       - name: Get the version
         id: get_version
@@ -52,7 +52,7 @@ jobs:
         run: cd build && zip -r weave-cache-purge-helper-${{ env.VERSION }}.zip weave-cache-purge-helper
       
       - name: Create GitHub release
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@v3
         with:
           files: build/weave-cache-purge-helper-${{ env.VERSION }}.zip
         env:
