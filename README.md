@@ -77,11 +77,7 @@ You can manually test the cache purging functionality with the following:
 
 1. Make sure you have `define('WC_PHP_DEBUG', true);` in your wp-config.php
 2. Log in as an administrator
-3. Visit any page on your site with `?test_wcph_purge=1` added to the URL
-```php
-?test_wcph_purge=1
-```
-   - For example: `https://example.com/any-page/?test_wcph_purge=1`
+3. Go to Plugins and click **Test purge** on the Weave Cache Purge Helper row (the link carries a nonce; a hand-typed `?test_wcph_purge=1` URL is refused)
 4. You'll see a confirmation message that the cache purge was initiated
 5. Check your debug log for the results
 

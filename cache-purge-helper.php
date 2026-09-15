@@ -3,7 +3,7 @@
  * Plugin Name:       Weave Cache Purge Helper
  * Plugin URI:        https://github.com/weavedigitalstudio/weave-cache-purge-helper/
  * Description:       Fork of Cache Purge Helper for Weave Digital Use. Adds additional WordPress, BB, ACF, and WP-Umbrella hooks to trigger cache purges in the correct order.
- * Version:           1.3.9
+ * Version:           1.3.10
  * Author:            Gareth Bissland, Paul Stoute, Jordan Trask, Jeff Cleverley
  * Author URI:        https://weave.co.nz
  * Requires PHP:      7.2
@@ -188,6 +188,9 @@ add_action('rest_after_insert_post', function($post, $request, $creating) {
  */
 add_action('init', function() {
     if (isset($_GET['test_wcph_purge']) && current_user_can('manage_options')) {
+        // A nonce so a link on another site cannot make an administrator's browser purge the cache.
+        // The Plugins row link below carries it.
+        check_admin_referer('wcph_test_purge');
         wcph_write_log('[' . date('Y-m-d H:i:s') . '] wcph - Manual test of cache purge system initiated');
         wcph_direct_purge();
         echo '<div style="background: #fff; border: 1px solid #008000; padding: 20px; margin: 20px; font-family: sans-serif;">
@@ -197,6 +200,17 @@ add_action('init', function() {
         </div>';
         exit;
     }
+});
+
+/**
+ * "Test purge" link on the Plugins row, carrying the nonce the test hook checks.
+ */
+add_filter('plugin_action_links_' . plugin_basename(__FILE__), function($links) {
+    if (current_user_can('manage_options')) {
+        $url = wp_nonce_url(add_query_arg('test_wcph_purge', '1', home_url('/')), 'wcph_test_purge');
+        $links[] = '<a href="' . esc_url($url) . '">' . esc_html__('Test purge', 'weave-cache-purge-helper') . '</a>';
+    }
+    return $links;
 });
 
 // Initialize the updater on init hook to avoid translation loading issues

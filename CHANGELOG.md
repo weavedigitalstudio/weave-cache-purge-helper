@@ -1,4 +1,8 @@
 # Changelog
+## [1.3.10] - 2026-09-15
+### Fixed
+- **CSRF on the manual test purge:** `?test_wcph_purge=1` ran for any administrator whose browser was sent to it, from any site. It now requires a nonce, carried by a new **Test purge** link on the Plugins row. The hand-typed URL in the README is retired; the log output and the purge itself are unchanged.
+
 ## [1.3.9] - 2026-06-17
 ### Fixed
 - **Logging:** The GitHub updater's "Current version / Latest version" debug line no longer fires on every admin request when `WP_DEBUG` is on. It's now gated behind the opt-in `WEAVE_UPDATER_DEBUG` constant, so it stays silent by default and no longer floods client error logs. Genuine API failure logs (request failed, bad response code, missing fields) are unchanged.
