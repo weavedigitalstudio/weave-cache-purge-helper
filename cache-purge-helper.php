@@ -67,10 +67,16 @@ function wcph_direct_purge() {
         }
     }
     
-    // Check and Purge LiteSpeed Cache (if no other purge executed)
-    if ( !$purge_executed && function_exists('litespeed_purge_all') ) {
+    // Check and Purge LiteSpeed Cache
+    // litespeed_purge_all is an action, not a function: LiteSpeed Cache registers it
+    // in src/api.cls.php and defines no function of that name, so a function_exists()
+    // test never passed and OLS sites had their Beaver Builder files deleted with the
+    // page cache left serving pages that pointed at them. Checked on its own rather
+    // than after Nginx Helper, because a site cloned from nginx to OLS can carry both
+    // plugins and only this purge reaches its page cache.
+    if ( has_action('litespeed_purge_all') ) {
         wcph_write_log('wcph - litespeed-cache plugin detected, purging cache.');
-        do_action('litespeed_purge_all');
+        do_action('litespeed_purge_all', 'Weave Cache Purge Helper');
         $purge_executed = true; // Mark purge as executed
     }
     
