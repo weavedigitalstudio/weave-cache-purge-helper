@@ -3,7 +3,7 @@
  * Plugin Name:       Weave Cache Purge Helper
  * Plugin URI:        https://github.com/weavedigitalstudio/weave-cache-purge-helper/
  * Description:       Fork of Cache Purge Helper for Weave Digital Use. Adds additional WordPress, BB, ACF, and WP-Umbrella hooks to trigger cache purges in the correct order.
- * Version:           1.3.10
+ * Version:           1.4.0
  * Author:            Gareth Bissland, Paul Stoute, Jordan Trask, Jeff Cleverley
  * Author URI:        https://weave.co.nz
  * Requires PHP:      7.2
@@ -182,6 +182,58 @@ add_action('rest_after_insert_post', function($post, $request, $creating) {
     wcph_direct_purge();
     wcph_write_log('[' . date('Y-m-d H:i:s') . '] wcph - REST API cache clear completed');
 }, 10, 3);
+
+/**
+ * Browser cache-busting for Beaver Builder's generated layout files
+ *
+ * Beaver Builder versions a cached layout file by its post's modified time, so a
+ * file it regenerates for any other reason keeps the same URL. Servers send
+ * uploads with a long browser cache (about a year on GridPane), so a returning
+ * visitor keeps the old file. It bites hardest on dynamic global rows such as
+ * mega menus: their selectors carry a hash of the row's settings, so editing the
+ * global row, or changing the site URL, leaves the page asking for selectors the
+ * visitor's cached file does not have.
+ *
+ * reBusted cannot catch these. It rewrites versions on wp_enqueue_scripts, and
+ * Beaver Builder enqueues partial layout files later, while rendering. These
+ * filters run as each tag is printed, so late files are covered too.
+ */
+function wcph_bb_asset_mtime_src($src) {
+    static $cache = null;
+
+    if (!is_string($src) || false === strpos($src, '/bb-plugin/cache/')) {
+        return $src;
+    }
+    if (null === $cache) {
+        $cache = class_exists('FLBuilderModel') ? FLBuilderModel::get_cache_dir() : false;
+    }
+    if (empty($cache['path']) || empty($cache['url'])) {
+        return $src;
+    }
+
+    // Compare paths only, so an http/https or host mismatch does not matter.
+    $src_path  = wp_parse_url($src, PHP_URL_PATH);
+    $cache_url = trailingslashit(wp_parse_url($cache['url'], PHP_URL_PATH));
+    if (!$src_path || 0 !== strpos($src_path, $cache_url)) {
+        return $src;
+    }
+
+    // Cache files sit flat in the cache folder. Anything with a further slash is
+    // not one of them, which also means nothing in the URL can steer the stat.
+    $name = substr($src_path, strlen($cache_url));
+    if ('' === $name || false !== strpos($name, '/')) {
+        return $src;
+    }
+
+    $file = $cache['path'] . $name;
+    if (!is_file($file)) {
+        return $src;
+    }
+
+    return add_query_arg('wcph', filemtime($file), $src);
+}
+add_filter('style_loader_src', 'wcph_bb_asset_mtime_src', 20);
+add_filter('script_loader_src', 'wcph_bb_asset_mtime_src', 20);
 
 /**
  * Manual test function for cache purge

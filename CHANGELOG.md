@@ -1,4 +1,11 @@
 # Changelog
+## [1.4.0] - 2026-09-18
+### Added
+- **Browser cache-busting for Beaver Builder layout files:** every file served from `uploads/bb-plugin/cache/` now carries `wcph=<file modified time>`, so a regenerated file gets a new URL. Beaver Builder versions these by the post's modified time, and servers cache uploads in the browser for about a year, so a file regenerated for any other reason stayed stale for returning visitors. Found on resilienceplatform.nz, where the mega menus (2.11 dynamic global rows, whose selectors carry a hash of the row's settings) rendered unstyled after a URL change. reBusted misses these files because Beaver Builder enqueues partial layout files while rendering, after reBusted has run; `style_loader_src` and `script_loader_src` catch them as they print.
+
+### Note
+- 1.3.10 was never released. Its nonce fix ships in this release.
+
 ## [1.3.10] - 2026-09-15
 ### Fixed
 - **CSRF on the manual test purge:** `?test_wcph_purge=1` ran for any administrator whose browser was sent to it, from any site. It now requires a nonce, carried by a new **Test purge** link on the Plugins row. The hand-typed URL in the README is retired; the log output and the purge itself are unchanged.
