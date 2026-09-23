@@ -14,6 +14,7 @@ It includes additional hooks for WordPress, ACF, WP-Umbrella and Beaver Builder 
 - Integration with WordPress REST API to purge caches when posts are created or updated through external applications or scripts.
 - Proper cache clearing sequence (Beaver Builder first, then Nginx/LiteSpeed) to prevent 404 errors.
 - Browser cache-busting for Beaver Builder's generated layout files, so a regenerated file never reuses a URL a returning visitor's browser has cached (1.4.0).
+- Block theme purges: navigation menus, synced patterns, Global Styles and database copies of templates purge the whole page cache when saved, since they show on every page but have no URL of their own (1.5.0).
 - **Automatic GitHub Updates**: The plugin now supports automatic updates via GitHub releases, appearing directly in the WordPress updates screen.
 
 ### Changed

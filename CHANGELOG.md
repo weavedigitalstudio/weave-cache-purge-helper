@@ -1,4 +1,11 @@
 # Changelog
+## [1.5.0] - 2026-09-24
+### Added
+- **Block theme purges:** saving or deleting a navigation menu, synced pattern, Global Styles, or a database copy of a template or template part now purges the whole page cache. These show on every page but have no public URL, so Nginx Helper's own per-post purge had nothing to clear and pages kept the old menu or pattern. A Site Editor save can write several at once, so the purge is queued and runs once at the end of the request.
+
+### Fixed
+- **Nginx purge skipped outside wp-admin:** the Nginx Helper branch tested `function_exists('is_plugin_active')`, which only exists once an admin include has loaded. REST, front-end and cron requests don't load it, so purges from those (REST post saves, and the new block theme purges) cleared the object cache but never the page cache, with nothing logged. The include is now loaded when missing. Sites with WP Umbrella were unaffected, because its integration loads the same file.
+
 ## [1.4.0] - 2026-09-18
 ### Added
 - **Browser cache-busting for Beaver Builder layout files:** every file served from `uploads/bb-plugin/cache/` now carries `wcph=<file modified time>`, so a regenerated file gets a new URL. Beaver Builder versions these by the post's modified time, and servers cache uploads in the browser for about a year, so a file regenerated for any other reason stayed stale for returning visitors. Found on resilienceplatform.nz, where the mega menus (2.11 dynamic global rows, whose selectors carry a hash of the row's settings) rendered unstyled after a URL change. reBusted misses these files because Beaver Builder enqueues partial layout files while rendering, after reBusted has run; `style_loader_src` and `script_loader_src` catch them as they print.

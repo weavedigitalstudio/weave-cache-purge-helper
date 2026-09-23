@@ -3,7 +3,7 @@
  * Plugin Name:       Weave Cache Purge Helper
  * Plugin URI:        https://github.com/weavedigitalstudio/weave-cache-purge-helper/
  * Description:       Fork of Cache Purge Helper for Weave Digital Use. Adds additional WordPress, BB, ACF, and WP-Umbrella hooks to trigger cache purges in the correct order.
- * Version:           1.4.0
+ * Version:           1.5.0
  * Author:            Gareth Bissland, Paul Stoute, Jordan Trask, Jeff Cleverley
  * Author URI:        https://weave.co.nz
  * Requires PHP:      7.2
@@ -58,7 +58,12 @@ function wcph_direct_purge() {
     $purge_executed = false;
     
     // Check and Purge Nginx Helper Cache
-    if ( function_exists( 'is_plugin_active' ) && is_plugin_active('nginx-helper/nginx-helper.php') ) {
+    // is_plugin_active() lives in an admin include that REST, front-end and cron
+    // requests don't load, so without this the Nginx purge was skipped there silently.
+    if ( ! function_exists( 'is_plugin_active' ) ) {
+        include_once ABSPATH . 'wp-admin/includes/plugin.php';
+    }
+    if ( is_plugin_active('nginx-helper/nginx-helper.php') ) {
         global $nginx_purger;
         if ( isset( $nginx_purger ) && is_object( $nginx_purger ) ) {
             wcph_write_log('wcph - nginx-helper plugin detected, purging cache.');
@@ -175,9 +180,31 @@ function wcph_init_hooks() {
             }
         });
     }
+
+    // Block theme site-wide entities. Menus, synced patterns, Global Styles and
+    // database copies of templates show on every page but have no public URL, so
+    // Nginx Helper's per-post purge has nothing to clear. One Site Editor save can
+    // write several of these, so the purge runs once, at the end of the request.
+    foreach (array('wp_navigation', 'wp_block', 'wp_global_styles', 'wp_template', 'wp_template_part') as $post_type) {
+        add_action('save_post_' . $post_type, 'wcph_queue_block_purge', 10, 0);
+        add_action('delete_post_' . $post_type, 'wcph_queue_block_purge', 10, 0);
+    }
 }
 
 add_action('init', 'wcph_init_hooks');
+
+/**
+ * Queue one full purge at shutdown for a block theme entity save
+ */
+function wcph_queue_block_purge() {
+    static $queued = false;
+    if ($queued) {
+        return;
+    }
+    $queued = true;
+    wcph_write_log('wcph - block theme entity saved (' . current_filter() . '), purge queued for shutdown.');
+    add_action('shutdown', 'wcph_direct_purge', 10, 0);
+}
 
 // REST API hooks
 add_action('rest_after_insert_post', function($post, $request, $creating) {
