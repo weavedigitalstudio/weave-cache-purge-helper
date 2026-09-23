@@ -1,10 +1,10 @@
 # Changelog
 ## [1.5.0] - 2026-09-24
 ### Added
-- **Block theme purges:** saving or deleting a navigation menu, synced pattern, Global Styles, or a database copy of a template or template part now purges the whole page cache. These show on every page but have no public URL, so Nginx Helper's own per-post purge had nothing to clear and pages kept the old menu or pattern. A Site Editor save can write several at once, so the purge is queued and runs once at the end of the request.
+- Purge the whole page cache when a navigation menu, synced pattern, Global Styles or database template is saved. These show on every page, but Nginx Helper only purges the homepage and the item's own URL.
 
 ### Fixed
-- **Nginx purge skipped outside wp-admin:** the Nginx Helper branch tested `function_exists('is_plugin_active')`, which only exists once an admin include has loaded. REST, front-end and cron requests don't load it, so purges from those (REST post saves, and the new block theme purges) cleared the object cache but never the page cache, with nothing logged. The include is now loaded when missing. Sites with WP Umbrella were unaffected, because its integration loads the same file.
+- The Nginx purge was skipped silently outside wp-admin (REST, front end, cron) because `is_plugin_active()` wasn't loaded there.
 
 ## [1.4.0] - 2026-09-18
 ### Added
